@@ -1,0 +1,9 @@
+body {
+  margin: 0; }
+
+.maze-wrapper .maze-row .maze-cell {
+  display: inline-block;
+  width: 30px;
+  height: 30px; }
+
+/*# sourceMappingURL=Style.css.map */
