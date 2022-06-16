@@ -6,7 +6,7 @@ import styles from '../styles/pages/Home.module.scss'
 
 const Home: NextPage = () => {
 	const [ seed, setSeed ] = useState("defaultSeed");
-	const [ size, setSize ] = useState("")
+	const [ size, setSize ] = useState(10)
 
   	return (
 		<>
@@ -21,7 +21,7 @@ const Home: NextPage = () => {
 					<div className={ styles.column }>
 						<Maze 
 							seed={ seed } 
-							size={ 25 } 
+							size={ size } 
 						/>
 					</div>
 

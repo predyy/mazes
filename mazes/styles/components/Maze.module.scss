@@ -1,0 +1,106 @@
+$cell-size: 75px;
+$wall-width: 1px;
+$wall-color: #000000;
+$passage-color: #f3f3f3;
+$player-color: green;
+
+.maze {
+    border: $wall-width solid $wall-color;
+    width: fit-content;
+    height: fit-content;
+    .cellRow {    
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: fit-content;
+    
+        .cell {
+            //background-color: $player-color;
+            display: grid;
+            width: $cell-size;
+            height: $cell-size;
+            grid-template-areas:
+                    'topLeft top topRight'
+                    'left middle right'
+                    'bottomLeft bottom bottomRight'; 
+            position: relative;
+    
+            .topWall, .bottomWall, .leftWall, .rightWall {
+                background: $passage-color;
+                position: relative;
+            }
+    
+            .wallsActive {
+                background: $wall-color;
+                z-index: 10;
+            }
+    
+            .middleMarkerCount {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+    
+            .topWall {            
+                grid-row: 1;
+                grid-column: 1 / span 3;
+                height: $wall-width;
+    
+                .markerCount {
+                    position: relative;
+                    text-align: center; 
+                }
+            }
+        
+            .bottomWall {
+                grid-row: 3;
+                grid-column: 1 / span 3;
+                height: $wall-width;
+                align-self: end;
+    
+                .markerCount {
+                    position: absolute;
+                    right: 0;
+                    left: 0;
+                    bottom: 0;   
+                    text-align: center;     
+                }
+            }
+        
+            .leftWall {
+                grid-column: 1;
+                grid-row: 1 / span 3;
+                width: $wall-width;
+    
+                .markerCount {
+                    left: 2px
+                }
+            }
+        
+            .rightWall {
+                grid-column: 3;
+                grid-row: 1 / span 3;
+                width: $wall-width;
+                justify-self: right;
+    
+                .markerCount {
+                    right: 2px
+                }
+            }
+    
+            .leftWall, .rightWall {
+                .markerCount {
+                    position: absolute;
+                    top: 50%;
+                    transform: translate(0, -50%);
+                }
+            }
+    
+            .markerCount {
+                font-size: 13px;
+            }
+        }
+    }
+}
+
