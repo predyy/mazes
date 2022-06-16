@@ -1,0 +1,17 @@
+@import '../variables.module.scss';
+
+.main {
+	width: 100%;
+}
+
+.container {
+  	display: flex;
+	flex-direction: row;
+	margin: 0 auto;
+	width: $desktop-width;
+
+
+	.column {
+		flex: 50%;
+	}
+}	
