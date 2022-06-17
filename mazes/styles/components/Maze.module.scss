@@ -101,6 +101,10 @@ $player-color: green;
                 font-size: 13px;
             }
         }
+
+        .player {
+            background-color: $player-color;
+        }
     }
 }
 

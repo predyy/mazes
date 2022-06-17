@@ -17,19 +17,16 @@ const Home: NextPage = () => {
 			</Head>
 
 			<main className={ styles.main }>
-				<div className={ styles.container }>
-					<div className={ styles.column }>
-						<Maze 
-							seed={ seed } 
-							size={ size } 
-						/>
-					</div>
+				<div className={ styles.container }>					
+					<Maze 
+						seed={ seed } 
+						size={ size } 
+					/>					
 
 					<div className={ styles.column }>
 						Right col
 					</div>
-				</div>
-				
+				</div>				
 			</main>
 
 			<footer className={ styles.footer }>
