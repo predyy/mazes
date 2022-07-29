@@ -135,7 +135,41 @@ class MazeObject {
 }
 
 export const MazeCell: React.FC<MazeCellProps> = (props: MazeCellProps) => {    
-    const { walls, markerCount, index, player } = props;
+    const { walls, markerCount, player } = props;
+
+    type Side = {
+        style: string
+    }
+    const sides = {
+        top: {
+            style: styles.topWall
+        },
+        bottom: {
+            style: styles.bottomWall
+        },
+        left: {
+            style: styles.leftWall
+        },
+        right: {
+            style: styles.rightWall
+        }
+    }
+
+    const renderWalls = () => {
+        let returnValue = [];
+
+        for (const key in sides) {
+            returnValue.push(
+                <div className={ sides[key].style + (walls[key] ? (" " + styles.wallsActive) : "")}>
+                    <div className={ styles.markerCount }>
+                        { markerCount.top }
+                    </div>
+                </div>
+            )
+        }
+
+        return returnValue;
+    }
 
     return (
         <div className={ styles.cell + (player ? " " + styles.player : "")}>
