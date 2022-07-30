@@ -5,10 +5,29 @@
 }
 
 .container {
-  	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
 	margin: 0 auto;
 	width: $desktop-width;
-
+	text-align: center
 }	
+
+.headline {
+	display: flex;
+	flex-direction: row;
+	vertical-align: middle;
+	align-items: center;
+	text-align: center;
+	width: 320px;
+	margin: 0 auto;
+	padding-top: 25px;
+
+	.iconButton {
+		cursor: pointer;
+		position: relative;
+		top: 4px;
+
+		img {
+			height: 35px;
+		}
+	}
+	
+}

@@ -1,4 +1,5 @@
 import { KeyboardEvent, useEffect, useState } from 'react'
+import { MazeObject, Cell, randomFromInterval } from '../lib/Maze'
 import styles from '../styles/components/Maze.module.scss'
 
 export interface MazeProps {
@@ -8,31 +9,8 @@ export interface MazeProps {
 
 export interface MazeCellProps extends Cell {
     index: number,
-    player: boolean
-}
-
-const Directions = ["top", "right", "bottom", "left"];
-const DirectionsMovement = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-
-interface Cell {
-    DFSVisited: boolean,
-    walls: {
-        [index: string]: boolean,
-        left: boolean,
-        right: boolean,
-        top: boolean,
-        bottom: boolean
-    },
-    markerCount: {
-        [index: string]: number,
-        left: number,
-        right: number,
-        top: number,
-        bottom: number,
-        middle: number
-    },
-    start: boolean,
-    finish: boolean
+    player: boolean,
+    visible: boolean
 }
 
 interface MazeInterface {
@@ -41,161 +19,45 @@ interface MazeInterface {
     size: number;
 }
 
-class MazeObject {
-    cells: Cell[];
-    seed: string;
-    size: number;
-
-    constructor(size: number, seed: string) {
-        console.log("Maze constructor");
-        this.size = size;
-        this.seed = seed;
-        
-        this.cells = this.emptyMaze();
-        console.log(this.cells);
-        const startIndex = 94;//size*size-1-this.randomFromInterval(0, size-1);
-        const finishIndex = 6;//this.randomFromInterval(0, size-1);
-
-        this.cells[startIndex].start = true;
-        this.cells[finishIndex].finish = true;
-
-        this.generateNewMaze(startIndex, finishIndex);
-    }
-
-    randomFromInterval(min: number, max: number) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    emptyMaze() {
-        let maze: Array<Cell> = [];
-
-        for (let i = 0; i < this.size*this.size; i++) {            
-            maze.push({
-                DFSVisited: false,
-                walls: {
-                    left: true,
-                    right: true,
-                    top: true,
-                    bottom: true
-                },
-                markerCount: {
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    middle: 0
-                },
-                start: false,
-                finish: false
-            })
-        }
-
-        return maze;
-    }
-
-    generateNewMaze(start: number, finish: number) {
-        console.log("Generating new maze...");        
-        const getAndVisitNeighbors = (index: number) => {
-            let neigbors = [];
-            const indexY = Math.floor(index / this.size);
-            const indexX = index % this.size;
-
-            for (let i = 0; i < DirectionsMovement.length; i++) { 
-                if (indexY + DirectionsMovement[i][1] >= 0 && indexY + DirectionsMovement[i][1] < this.size && indexX + DirectionsMovement[i][0] >= 0 && indexX + DirectionsMovement[i][0] < this.size) {
-                    const neigborIndex = (indexY + DirectionsMovement[i][1]) * this.size + indexX + DirectionsMovement[i][0]
-                    if (!this.cells[neigborIndex].DFSVisited) {
-                        //Remove walls while visiting
-                        this.cells[index].walls[Directions[i]] = false;
-                        this.cells[neigborIndex].walls[Directions[(i + Directions.length/2) % Directions.length]] = false;
-                        neigbors.push(neigborIndex);
-                    }    
-                }
-            }
-
-            return neigbors;
-        }
-
-        let stack = [start];
-        this.cells[start].DFSVisited = true;
-
-        while (stack.length > 0) {
-            let index = this.randomFromInterval(0, stack.length);            
-            let currentCellIndex = stack[index];
-            stack.splice(index, 1);
-
-            let neighbors = getAndVisitNeighbors(currentCellIndex);
-            
-            for (let i = 0; i < neighbors.length; i++) {
-                this.cells[neighbors[i]].DFSVisited = true;
-                stack.push(neighbors[i]);
-            }          
-        }
-            
-    }
-}
-
 export const MazeCell: React.FC<MazeCellProps> = (props: MazeCellProps) => {    
-    const { walls, markerCount, player } = props;
-
-    type Side = {
+    const { walls, markerCount, index, player, finish, visible } = props;
+    
+    interface Side {
         style: string
     }
-    const sides = {
-        top: {
-            style: styles.topWall
-        },
-        bottom: {
-            style: styles.bottomWall
-        },
-        left: {
-            style: styles.leftWall
-        },
-        right: {
-            style: styles.rightWall
-        }
-    }
+    const sides = new Map<string, Side>([
+        ["top", { style: styles.topWall }],
+        ["left", { style: styles.leftWall }],
+        ["right", { style: styles.rightWall }],
+        ["bottom", { style: styles.bottomWall }]
+    ]);
 
     const renderWalls = () => {
         let returnValue = [];
 
-        for (const key in sides) {
+        for (let [key, value] of sides) {
             returnValue.push(
-                <div className={ sides[key].style + (walls[key] ? (" " + styles.wallsActive) : "")}>
+                <div 
+                    key={ "wall_"+key } 
+                    className={ value.style + (walls[key] ? (" " + styles.wallsActive) : "") }
+                >
                     <div className={ styles.markerCount }>
-                        { markerCount.top }
+                        { markerCount[key] > 0 ? markerCount[key] : "" }
                     </div>
                 </div>
-            )
+            );
         }
 
         return returnValue;
     }
 
     return (
-        <div className={ styles.cell + (player ? " " + styles.player : "")}>
-            <div className={ styles.topWall + (walls.top ? (" " + styles.wallsActive) : "")}>
-                <div className={ styles.markerCount }>
-                    { markerCount.top }
-                </div>
-            </div>
-            <div className={ styles.bottomWall + (walls.bottom ? (" " + styles.wallsActive) : "")}>
-                <div className={ styles.markerCount }>
-                    { markerCount.bottom }
-                </div>
-            </div>
-            <div className={ styles.leftWall + (walls.left ? (" " + styles.wallsActive) : "")}>
-                <div className={ styles.markerCount }>
-                    { markerCount.left }
-                </div>
-            </div>
-            <div className={ styles.rightWall + (walls.right ? (" " + styles.wallsActive) : "")}>
-                <div className={ styles.markerCount }>
-                    { markerCount.right }
-                </div>
-            </div>
+        <div className={ styles.cell + (finish ? (" " + styles.finish) : "") + (visible ? (" " + styles.cellVisible) : (" " + styles.cellNotVisible)) }>
+            { player ? <div className={ styles.player }></div> : ""}
+            { renderWalls() }
 
             <div className={ styles.middleMarkerCount }>
-                { markerCount.middle }
+                { markerCount.middle > 0 ? markerCount.middle : "" }
             </div>
         </div>
     )
@@ -205,7 +67,10 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
     const { seed, size } = props;
 
     const [maze, setMaze] = useState<MazeInterface>();
-    const [playerPosition, setPlayerPosition] = useState({x: 0, y: 0});
+    const [playerPosition, setPlayerPosition] = useState({
+        x: randomFromInterval(0, size-1, seed),
+        y: randomFromInterval(0, size-1, seed),
+    });
     const [counterChange, setCounterChange] = useState(1);
 
     const keyDownHandler = (event: any) => {      
@@ -214,7 +79,6 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
             return;
         }        
 
-        console.log(event);
         switch (event.key) {
             case "ArrowUp":
                 if (!maze.cells[playerPosition.y*maze.size+playerPosition.x].walls.top) {
@@ -273,7 +137,6 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
 
         const newMaze = {...maze};
         newMaze.cells[index].markerCount[position] += amount;
-
         
         setMaze(newMaze);
     }
@@ -285,6 +148,40 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
 
         let returnValue = [];
 
+        const isInSight = (playerX: number, playerY: number, cellX: number, cellY: number) => {
+            if (playerX != cellX && playerY != cellY) {
+                return false;
+            }
+
+            if (playerX == cellX) {
+                let direction = (playerY-cellY) < 0 ? 1 : -1;
+                for (let i = playerY; i != cellY; i += direction) {
+                    if (direction == 1 && maze.cells[i*size+playerX].walls.bottom) {
+                        return false;
+                    } 
+
+                    if (direction == -1 && maze.cells[i*size+playerX].walls.top) {
+                        return false;
+                    }                   
+                }
+            }
+
+            if (playerY == cellY) {
+                let direction = (playerX-cellX) < 0 ? 1 : -1;
+                for (let i = playerX; i != cellX; i += direction) { 
+                    if (direction == -1 && maze.cells[playerY*size+i].walls.left) {
+                        return false;
+                    } 
+
+                    if (direction == 1 && maze.cells[playerY*size+i].walls.right) {
+                        return false;
+                    }                   
+                }
+            }
+
+            return true;
+        }
+
         const renderMazeRow = (row: number) => {
             let returnValue = [];
 
@@ -295,6 +192,7 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
                         player={row == playerPosition.y && i == playerPosition.x }
                         key={"cell_"+(row*size+i)} 
                         {...maze.cells[row*size+i]}
+                        visible={isInSight(playerPosition.x, playerPosition.y, i, row)}
                     />
                 )
             }
@@ -313,7 +211,25 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
     }
 
     useEffect(() => {          
-        setMaze(new MazeObject(size, seed));
+        function getRandomCoordinatesTouchingWall() {
+            let postions = [
+                randomFromInterval(0, (size - 1), seed),
+                [0, size-1][randomFromInterval(0, 1, seed)]
+            ]
+            
+            let x = postions.splice(randomFromInterval(0, postions.length-1, seed), 1)[0];
+            let y = postions.splice(randomFromInterval(0, postions.length-1, seed), 1)[0];
+            
+            return y*size + x;
+        }
+
+        setMaze(new MazeObject(
+            size, 
+            seed, 
+            false,             
+            (playerPosition.y*size + playerPosition.x), 
+            getRandomCoordinatesTouchingWall()
+        ));
     }, [])
 
     useEffect(() => {          
@@ -323,10 +239,6 @@ export const Maze: React.FC<MazeProps> = (props: MazeProps) => {
             document.removeEventListener('keydown', keyDownHandler);      
         };
     }, [keyDownHandler])
-
-    useEffect(() => {
-        console.log("Player updated");
-    }, [playerPosition])
 
     return (
         <div className={ styles.maze }>

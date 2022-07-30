@@ -1,13 +1,20 @@
 $cell-size: 75px;
 $wall-width: 1px;
-$wall-color: #000000;
-$passage-color: #f3f3f3;
-$player-color: green;
+$wall-color: #99D55D;
+$passage-color: #99D55D;
+$player-color: #FF6188;
+$finish-color: #FFD866;
+$cell-background: #a9dc76; 	
+$non-visible-cell-background: #70B22E;
 
 .maze {
     border: $wall-width solid $wall-color;
+    font-family: 'Lato', sans-serif;
     width: fit-content;
     height: fit-content;
+    margin: 0 auto;
+    margin-top: 50px;
+
     .cellRow {    
         display: flex;
         flex-direction: row;
@@ -15,7 +22,7 @@ $player-color: green;
         width: fit-content;
     
         .cell {
-            //background-color: $player-color;
+            background-color: $cell-background;
             display: grid;
             width: $cell-size;
             height: $cell-size;
@@ -34,12 +41,14 @@ $player-color: green;
                 background: $wall-color;
                 z-index: 10;
             }
+            
     
             .middleMarkerCount {
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
+                height: 22px;
             }
     
             .topWall {            
@@ -100,11 +109,33 @@ $player-color: green;
             .markerCount {
                 font-size: 13px;
             }
+        }        
+
+        .finish {
+            background: $finish-color;
+            z-index: 10;
+        }
+
+        .cellNotVisible {
+            background-color: $non-visible-cell-background;
+
+            .topWall, .bottomWall, .leftWall, .rightWall {
+                background: $wall-color;
+                position: relative;
+            }
+
+            .markerCount, .middleMarkerCount {
+                display: none;
+            }
         }
 
         .player {
+            grid-area: middle;
             background-color: $player-color;
+            border-radius: 15px;
         }
+
+        
     }
 }
 
